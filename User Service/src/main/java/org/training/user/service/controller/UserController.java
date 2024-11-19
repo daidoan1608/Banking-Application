@@ -22,6 +22,7 @@ public class UserController {
 
     private final UserService userService;
 
+
     /**
      * Creates a new user.
      *

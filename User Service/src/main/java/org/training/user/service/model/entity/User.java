@@ -10,17 +10,24 @@ import org.training.user.service.model.Status;
 import javax.persistence.*;
 import java.sql.Struct;
 import java.time.LocalDate;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
 @Data
+@Table(	name = "users",
+        uniqueConstraints = {
+                @UniqueConstraint(columnNames = "username"),
+                @UniqueConstraint(columnNames = "emailId")
+        })
 public class User {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long userId;
+    private Long id;
 
     private String username;
 
@@ -32,8 +39,11 @@ public class User {
 
     private String identificationNumber;
 
-    @Enumerated(EnumType.STRING)
-    private Role role;
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(	name = "user_roles",
+            joinColumns = @JoinColumn(name = "userId"),
+            inverseJoinColumns = @JoinColumn(name = "role_id"))
+    private Set<Role> roles = new HashSet<>();
 
     @CreationTimestamp
     private LocalDate creationOn;
@@ -45,7 +55,4 @@ public class User {
     @JoinColumn(name = "user_profile_id", referencedColumnName = "userProfileId")
     private UserProfile userProfile;
 
-    public enum Role {
-        ADMIN, USER
-    }
 }

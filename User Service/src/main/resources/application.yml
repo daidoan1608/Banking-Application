@@ -15,8 +15,19 @@ spring:
     password: ${MYSQL_PASSWORD:root}
   jpa:
     hibernate:
-      ddl-auto: create
+      ddl-auto: update
     show-sql: true
     properties:
       hibernate:
         format_sql: true
+
+bezkoder:
+  app:
+    jwtSecret: bezKoderSecretKey
+    # Uncomment to use in production
+    # jwtExpirationMs: 3600000
+    # jwtRefreshExpirationMs: 86400000
+
+    # For test
+    jwtExpirationMs: 6000000
+    jwtRefreshExpirationMs: 12000000

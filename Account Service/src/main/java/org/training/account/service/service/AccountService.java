@@ -73,5 +73,5 @@ public interface AccountService {
      * @param userId The ID of the user
      * @return The account information as an AccountDto object
      */
-    AccountDto readAccountByUserId(Long userId);
+    List<AccountDto> readAccountByUserId(Long userId);
 }

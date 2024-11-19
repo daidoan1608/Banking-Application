@@ -4,6 +4,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.training.account.service.model.AccountType;
 import org.training.account.service.model.entity.Account;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface AccountRepository extends JpaRepository<Account, Long> {
@@ -31,5 +32,5 @@ public interface AccountRepository extends JpaRepository<Account, Long> {
      * @param userId the ID of the user
      * @return an optional account object
      */
-    Optional<Account> findAccountByUserId(Long userId);
+    List<Account> findAccountByUserId(Long userId);
 }

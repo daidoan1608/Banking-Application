@@ -107,18 +107,8 @@ public class AccountController {
      * @return the account of the user
      */
     @GetMapping("/{userId}")
-    public ResponseEntity<AccountDto> readAccountByUserId(@PathVariable Long userId){
-        return ResponseEntity.ok(accountService.readAccountByUserId(userId));
-
-
-
-
-
-
-
-
-
-
-
+    public ResponseEntity<List<AccountDto>> readAccountByUserId(@PathVariable Long userId) {
+        List<AccountDto> accountDtos = accountService.readAccountByUserId(userId); // Sử dụng phương thức đúng
+        return ResponseEntity.ok(accountDtos); // Trả về ResponseEntity với danh sách AccountDto
     }
 }

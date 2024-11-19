@@ -5,7 +5,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.training.user.service.model.Status;
-import org.training.user.service.model.entity.User;
+
+import java.util.Set;
 
 @Data
 @AllArgsConstructor
@@ -25,7 +26,7 @@ public class UserDto {
 
     private Status status;
 
-    private User.Role role;
+    private Set<String> role;
 
     private UserProfileDto userProfileDto;
 }

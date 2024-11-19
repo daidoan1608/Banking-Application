@@ -3,6 +3,7 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/.idea/Spring-Boot-Microservices-Banking-Application-main.iml" filepath="$PROJECT_DIR$/.idea/Spring-Boot-Microservices-Banking-Application-main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/User Service/userservice.iml" filepath="$PROJECT_DIR$/User Service/userservice.iml" />
     </modules>
   </component>
 </project>

@@ -25,6 +25,7 @@ import org.training.account.service.service.AccountService;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 import static org.training.account.service.model.Constants.ACC_PREFIX;
 
@@ -56,11 +57,9 @@ public class AccountServiceImpl implements AccountService {
     public Response createAccount(AccountDto accountDto) {
 
         ResponseEntity<UserDto> user = userService.readUserById(accountDto.getUserId());
-        String role = user.getBody().getRole().toString();
         if (Objects.isNull(user.getBody())) {
             throw new ResourceNotFound("user not found on the server");
         }
-
         accountRepository.findAccountByUserIdAndAccountType(accountDto.getUserId(), AccountType.valueOf(accountDto.getAccountType()))
                 .ifPresent(account -> {
                     log.error("Account already exists on the server");
@@ -69,13 +68,8 @@ public class AccountServiceImpl implements AccountService {
 
         Account account = accountMapper.convertToEntity(accountDto);
         account.setAccountNumber(ACC_PREFIX + String.format("%07d",sequenceService.generateAccountNumber().getAccountNumber()));
-        if (("ADMIN").equals(role)) {
-            account.setAccountStatus(AccountStatus.ACTIVE);
-            account.setAvailableBalance(BigDecimal.valueOf(100000));
-        } else {
-            account.setAccountStatus(AccountStatus.PENDING);
-            account.setAvailableBalance(BigDecimal.valueOf(0));
-        }
+        account.setAccountStatus(AccountStatus.PENDING);
+        account.setAvailableBalance(BigDecimal.valueOf(0));
         account.setAccountType(AccountType.valueOf(accountDto.getAccountType()));
         accountRepository.save(account);
         return Response.builder()
@@ -190,11 +184,12 @@ public class AccountServiceImpl implements AccountService {
                         throw new AccountClosingException("Balance should be zero");
                     }
                     account.setAccountStatus(AccountStatus.CLOSED);
+                    accountRepository.save(account);
                     return Response.builder()
-                            .message("Account closed successfully").message(success)
+                            .responseCode(success)
+                            .message("Account closed successfully")
                             .build();
                 }).orElseThrow(ResourceNotFound::new);
-
     }
 
     /**
@@ -206,17 +201,38 @@ public class AccountServiceImpl implements AccountService {
      * @throws AccountStatusException if the account is inactive or closed
      */
     @Override
-    public AccountDto readAccountByUserId(Long userId) {
+    public List<AccountDto> readAccountByUserId(Long userId) {
+        // Tìm danh sách các tài khoản bằng userId
+        List<Account> accounts = accountRepository.findAccountByUserId(userId);
 
-        return accountRepository.findAccountByUserId(userId)
-                .map(account ->{
-                    if(!account.getAccountStatus().equals(AccountStatus.ACTIVE)){
-                        throw new AccountStatusException("Account is inactive/closed");
-                    }
+        // Kiểm tra nếu danh sách tài khoản rỗng
+        if (accounts.isEmpty()) {
+            throw new ResourceNotFound("No accounts found for userId: " + userId);
+        }
+
+        // Chuyển đổi danh sách Account sang danh sách AccountDto
+        return accounts.stream()
+                .map(account -> {
+                    // Kiểm tra trạng thái tài khoản
+//                    if (!account.getAccountStatus().equals(AccountStatus.ACTIVE)) {
+//                        throw new AccountStatusException("Account is inactive/closed for userId: " + userId);
+//                    }
+                    // Chuyển đổi Account sang AccountDto
                     AccountDto accountDto = accountMapper.convertToDto(account);
                     accountDto.setAccountStatus(account.getAccountStatus().toString());
                     accountDto.setAccountType(account.getAccountType().toString());
                     return accountDto;
-                }).orElseThrow(ResourceNotFound::new);
+                })
+                .collect(Collectors.toList());
+//        return accountRepository.findAccountByUserId(userId)
+//                .map(account ->{
+//                    if(!account.getAccountStatus().equals(AccountStatus.ACTIVE)){
+//                        throw new AccountStatusException("Account is inactive/closed");
+//                    }
+//                    AccountDto accountDto = accountMapper.convertToDto(account);
+//                    accountDto.setAccountStatus(account.getAccountStatus().toString());
+//                    accountDto.setAccountType(account.getAccountType().toString());
+//                    return accountDto;
+//                }).orElseThrow(ResourceNotFound::new);
     }
 }
